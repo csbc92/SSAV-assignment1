@@ -1,0 +1,1065 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+
+int ToGear;
+int FromGear;
+int UseCase;
+int ErrStat;
+clock SysTimer;
+clock GCTimer;
+
+
+
+// Clutch channels
+chan CloseClutch, OpenClutch,ClutchIsClosed, ClutchIsOpen;
+
+// Gearbox chans
+chan ReqSet, GearNeu, GearSet, ReqNeu;
+
+// Engine chans
+chan ReqZeroTorque, TorqueZero, ReqTorque, ReqSpeed;
+
+//Intface
+chan NewGear, ReqNewGear;
+
+chan SpeedSet;</declaration>
+	<template>
+		<name>GearControlTemplate</name>
+		<location id="id0" x="-765" y="-382">
+			<name x="-774" y="-416">Gear</name>
+		</location>
+		<location id="id1" x="-765" y="-280">
+			<name x="-773" y="-314">Initiate</name>
+			<committed/>
+		</location>
+		<location id="id2" x="-493" y="-280">
+			<name x="-501" y="-314">CheckTorque</name>
+			<label kind="invariant" x="-501" y="-263">GCTimer &lt;=255</label>
+		</location>
+		<location id="id3" x="-127" y="-280">
+			<name x="-137" y="-314">CheckClutch2</name>
+			<label kind="invariant" x="-137" y="-263">GCTimer &lt;= 200</label>
+		</location>
+		<location id="id4" x="77" y="-127">
+			<name x="67" y="-161">ClutchOpen2</name>
+			<committed/>
+		</location>
+		<location id="id5" x="-119" y="-85">
+			<name x="-129" y="-119">COpenError</name>
+		</location>
+		<location id="id6" x="-493" y="-161">
+			<name x="-501" y="-195">ReqNeuGear</name>
+			<committed/>
+		</location>
+		<location id="id7" x="-493" y="-34">
+			<name x="-503" y="-68">CheckGearNeu</name>
+			<label kind="invariant" x="-503" y="-17">GCTimer &lt;= 250</label>
+		</location>
+		<location id="id8" x="94" y="-25">
+			<name x="84" y="-59">CheckGearNeu2</name>
+			<label kind="invariant" x="84" y="-8">GCTimer &lt;=250</label>
+		</location>
+		<location id="id9" x="93" y="255">
+			<name x="83" y="221">ReqSetGear2</name>
+			<committed/>
+		</location>
+		<location id="id10" x="-765" y="0">
+			<name x="-775" y="-34">ReqSyncSpeed</name>
+			<committed/>
+		</location>
+		<location id="id11" x="-493" y="51">
+			<name x="-503" y="17">CheckSyncSpeed</name>
+			<label kind="invariant" x="-503" y="68">GCTimer &lt;=155</label>
+		</location>
+		<location id="id12" x="-119" y="59">
+			<name x="-129" y="25">CheckClutch</name>
+			<label kind="invariant" x="-129" y="76">GCTimer &lt;=200</label>
+		</location>
+		<location id="id13" x="-493" y="161">
+			<name x="-503" y="127">ReqSetGear</name>
+			<committed/>
+		</location>
+		<location id="id14" x="-119" y="153">
+			<name x="-129" y="119">ClutchOpen</name>
+			<committed/>
+		</location>
+		<location id="id15" x="-493" y="314">
+			<name x="-503" y="280">CheckGearSet1</name>
+			<label kind="invariant" x="-503" y="331">GCTimer &lt;=350</label>
+		</location>
+		<location id="id16" x="-272" y="314">
+			<name x="-297" y="323">GSetError</name>
+		</location>
+		<location id="id17" x="-119" y="314">
+			<name x="-129" y="280">CheckGearSet2</name>
+			<label kind="invariant" x="-129" y="331">GCTimer &lt;=350</label>
+		</location>
+		<location id="id18" x="-493" y="450">
+			<name x="-503" y="416">ReqTorqueC</name>
+			<committed/>
+		</location>
+		<location id="id19" x="-272" y="450">
+			<name x="-357" y="416">CheckClutchClosed</name>
+			<label kind="invariant" x="-282" y="467">GCTimer &lt;= 200</label>
+		</location>
+		<location id="id20" x="-119" y="450">
+			<name x="-129" y="416">ClutchClose</name>
+			<committed/>
+		</location>
+		<location id="id21" x="-765" y="450">
+			<name x="-775" y="416">GearChanged</name>
+			<committed/>
+		</location>
+		<location id="id22" x="-272" y="578">
+			<name x="-282" y="544">CCloseError</name>
+		</location>
+		<location id="id23" x="-59" y="578">
+			<name x="-69" y="544">CheckClutchClosed2</name>
+			<label kind="invariant" x="-69" y="595">GCTimer &lt;= 200</label>
+		</location>
+		<location id="id24" x="-221" y="-34">
+			<name x="-231" y="-68">GNeuError</name>
+		</location>
+		<init ref="id0"/>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id21"/>
+			<label kind="synchronisation" x="-391" y="637">ClutchIsClosed?</label>
+			<nail x="-340" y="705"/>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id22"/>
+			<label kind="guard" x="-204" y="535">GCTimer &gt; 150 &amp;&amp;
+GCTimer &lt;= 200</label>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id23"/>
+			<label kind="guard" x="51" y="425">ToGear==0</label>
+			<label kind="synchronisation" x="51" y="442">CloseClutch!</label>
+			<label kind="assignment" x="51" y="459">GCTimer :=0</label>
+			<nail x="77" y="391"/>
+		</transition>
+		<transition>
+			<source ref="id19"/>
+			<target ref="id22"/>
+			<label kind="guard" x="-272" y="493">GCTimer &gt; 150 &amp;&amp;
+GCTimer &lt;= 200</label>
+		</transition>
+		<transition>
+			<source ref="id19"/>
+			<target ref="id18"/>
+			<label kind="synchronisation" x="-408" y="433">ClutchIsClosed?</label>
+		</transition>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id19"/>
+			<label kind="synchronisation" x="-229" y="408">CloseClutch!</label>
+			<label kind="assignment" x="-229" y="425">GCTimer :=0</label>
+		</transition>
+		<transition>
+			<source ref="id17"/>
+			<target ref="id20"/>
+			<label kind="synchronisation" x="-119" y="374">GearSet?</label>
+		</transition>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id16"/>
+			<label kind="guard" x="-408" y="263">GCTimer &gt; 300 &amp;&amp;
+GCTimer &lt;= 350</label>
+		</transition>
+		<transition>
+			<source ref="id17"/>
+			<target ref="id16"/>
+			<label kind="guard" x="-246" y="272">GCTimer &gt; 300 &amp;&amp;
+GCTimer &lt;= 350</label>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id17"/>
+			<label kind="synchronisation" x="-119" y="238">ReqSet!</label>
+			<label kind="assignment" x="-119" y="255">GCTimer :=0</label>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id14"/>
+			<label kind="synchronisation" x="-119" y="93">ClutchIsOpen?</label>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id17"/>
+			<label kind="guard" x="-8" y="212">ToGear &gt; 0</label>
+			<label kind="synchronisation" x="-8" y="229">ReqSet!</label>
+			<label kind="assignment" x="-8" y="246">GCTimer :=0</label>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id12"/>
+			<label kind="guard" x="-331" y="59">GCTimer &gt;= 150</label>
+			<label kind="synchronisation" x="-331" y="76">OpenClutch!</label>
+			<label kind="assignment" x="-331" y="93">GCTimer := 0</label>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id9"/>
+			<label kind="synchronisation" x="102" y="76">GearNeu?</label>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id5"/>
+			<label kind="guard" x="-127" y="-25">GCTimer &gt; 150 &amp;&amp;
+GCTimer &lt;=200</label>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id24"/>
+			<label kind="guard" x="-357" y="-76">GCTimer &gt; 200 &amp;&amp;
+GCTimer &lt;= 250</label>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id24"/>
+			<label kind="guard" x="-25" y="-68">GCTimer &gt; 200 &amp;&amp;
+GCTimer &lt;= 250</label>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id8"/>
+			<label kind="synchronisation" x="85" y="-93">ReqNeu!</label>
+			<label kind="assignment" x="85" y="-76">GCTimer :=0</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id5"/>
+			<label kind="guard" x="-123" y="-195">GCTimer &gt; 150 &amp;&amp;
+GCTimer &lt;= 200</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="-8" y="-297">ClutchIsOpen?</label>
+			<nail x="68" y="-272"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="guard" x="-314" y="-314">GCTimer &gt;= 250</label>
+			<label kind="synchronisation" x="-314" y="-297">OpenClutch!</label>
+			<label kind="assignment" x="-314" y="-280">GCTimer :=0</label>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id21"/>
+			<label kind="guard" x="-782" y="212">ToGear &lt;= 0</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id10"/>
+			<label kind="guard" x="-765" y="-119">FromGear &lt;= 0</label>
+		</transition>
+		<transition>
+			<source ref="id21"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="-893" y="297">NewGear!</label>
+			<nail x="-816" y="365"/>
+			<nail x="-876" y="-280"/>
+		</transition>
+		<transition>
+			<source ref="id18"/>
+			<target ref="id21"/>
+			<label kind="synchronisation" x="-595" y="450">ReqTorque!</label>
+		</transition>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id18"/>
+			<label kind="synchronisation" x="-493" y="382">GearSet?</label>
+		</transition>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id15"/>
+			<label kind="synchronisation" x="-493" y="187">ReqSet!</label>
+			<label kind="assignment" x="-493" y="204">GCTimer :=0</label>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id13"/>
+			<label kind="guard" x="-484" y="93">GCTimer &lt; 150</label>
+			<label kind="synchronisation" x="-484" y="110">SpeedSet?</label>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id11"/>
+			<label kind="guard" x="-671" y="34">ToGear &gt; 0</label>
+			<label kind="synchronisation" x="-671" y="51">ReqSpeed!</label>
+			<label kind="assignment" x="-671" y="68">GCTimer := 0</label>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="-654" y="-42">GearNeu?</label>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id7"/>
+			<label kind="synchronisation" x="-493" y="-127">ReqNeu!</label>
+			<label kind="assignment" x="-493" y="-110">GCTimer := 0</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id6"/>
+			<label kind="guard" x="-493" y="-238">GCTimer &lt; 250</label>
+			<label kind="synchronisation" x="-493" y="-221">TorqueZero?</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id2"/>
+			<label kind="guard" x="-680" y="-272">FromGear &gt; 0</label>
+			<label kind="synchronisation" x="-680" y="-255">ReqZeroTorque!</label>
+			<label kind="assignment" x="-680" y="-238">GCTimer := 0</label>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="-756" y="-357">ReqNewGear?</label>
+			<label kind="assignment" x="-756" y="-340">SysTimer := 0</label>
+		</transition>
+	</template>
+	<template>
+		<name>EngineTemplate</name>
+		<declaration>
+
+clock ETimer;
+
+</declaration>
+		<location id="id25" x="-425" y="-374">
+			<name x="-435" y="-408">Torque</name>
+		</location>
+		<location id="id26" x="306" y="-374">
+			<name x="296" y="-408">DecTorque</name>
+			<label kind="invariant" x="296" y="-357">ETimer &lt;=400</label>
+		</location>
+		<location id="id27" x="306" y="195">
+			<name x="296" y="161">Zero</name>
+		</location>
+		<location id="id28" x="127" y="-9">
+			<name x="117" y="-43">Initial</name>
+		</location>
+		<location id="id29" x="-59" y="195">
+			<name x="-69" y="161">FindSpeed</name>
+			<label kind="invariant" x="-69" y="212">ETimer &lt;=200</label>
+		</location>
+		<location id="id30" x="-59" y="-179">
+			<name x="-69" y="-213">ClutchOpen</name>
+			<committed/>
+		</location>
+		<location id="id31" x="-323" y="-179">
+			<name x="-333" y="-213">ClutchClose</name>
+			<label kind="invariant" x="-333" y="-162">ETimer &lt;= 900</label>
+		</location>
+		<location id="id32" x="-323" y="288">
+			<name x="-306" y="255">ErrorSpeed</name>
+		</location>
+		<location id="id33" x="-425" y="195">
+			<name x="-435" y="161">Speed</name>
+			<label kind="invariant" x="-518" y="212">ETimer &lt;= 500</label>
+		</location>
+		<init ref="id28"/>
+		<transition>
+			<source ref="id26"/>
+			<target ref="id30"/>
+			<label kind="guard" x="51" y="-365">ETimer == 400</label>
+			<label kind="assignment" x="52" y="-344">UseCase:=1</label>
+			<nail x="34" y="-315"/>
+			<nail x="-59" y="-230"/>
+		</transition>
+		<transition>
+			<source ref="id33"/>
+			<target ref="id25"/>
+			<label kind="guard" x="-425" y="-123">ETimer &lt; 500</label>
+			<label kind="synchronisation" x="-425" y="-106">ReqTorque?</label>
+		</transition>
+		<transition>
+			<source ref="id33"/>
+			<target ref="id32"/>
+			<label kind="guard" x="-459" y="255">ETimer == 500</label>
+		</transition>
+		<transition>
+			<source ref="id29"/>
+			<target ref="id33"/>
+			<label kind="guard" x="-272" y="136">ETimer &gt;= 50</label>
+			<label kind="synchronisation" x="-272" y="153">SpeedSet!</label>
+			<label kind="assignment" x="-272" y="170">ETimer :=0</label>
+		</transition>
+		<transition>
+			<source ref="id31"/>
+			<target ref="id32"/>
+			<label kind="guard" x="-323" y="20">ETimer ==900</label>
+		</transition>
+		<transition>
+			<source ref="id31"/>
+			<target ref="id25"/>
+			<label kind="guard" x="-407" y="-310">ETimer &gt;= 50</label>
+			<label kind="synchronisation" x="-407" y="-293">ReqTorque?</label>
+		</transition>
+		<transition>
+			<source ref="id30"/>
+			<target ref="id31"/>
+			<label kind="guard" x="-212" y="-195">ToGear &gt; 0</label>
+			<label kind="assignment" x="-212" y="-178">ETimer :=0</label>
+		</transition>
+		<transition>
+			<source ref="id29"/>
+			<target ref="id30"/>
+			<label kind="guard" x="-59" y="-17">ETimer == 200</label>
+			<label kind="assignment" x="-59" y="8">UseCase:=2</label>
+		</transition>
+		<transition>
+			<source ref="id30"/>
+			<target ref="id28"/>
+			<label kind="guard" x="-41" y="-128">ToGear==0</label>
+		</transition>
+		<transition>
+			<source ref="id28"/>
+			<target ref="id29"/>
+			<label kind="synchronisation" x="51" y="76">ReqSpeed?</label>
+			<label kind="assignment" x="51" y="93">ETimer :=0,
+UseCase:=0</label>
+		</transition>
+		<transition>
+			<source ref="id27"/>
+			<target ref="id29"/>
+			<label kind="guard" x="110" y="195">ToGear &gt; 0</label>
+			<label kind="synchronisation" x="110" y="212">ReqSpeed?</label>
+			<label kind="assignment" x="110" y="229">ETimer :=0</label>
+		</transition>
+		<transition>
+			<source ref="id27"/>
+			<target ref="id28"/>
+			<label kind="guard" x="187" y="42">ToGear == 0</label>
+		</transition>
+		<transition>
+			<source ref="id26"/>
+			<target ref="id27"/>
+			<label kind="guard" x="306" y="-123">ETimer &gt;= 150</label>
+			<label kind="synchronisation" x="306" y="-106">TorqueZero!</label>
+		</transition>
+		<transition>
+			<source ref="id25"/>
+			<target ref="id26"/>
+			<label kind="synchronisation" x="-187" y="-433">ReqZeroTorque?</label>
+			<label kind="assignment" x="-187" y="-416">ETimer:=0,
+UseCase:=0</label>
+		</transition>
+	</template>
+	<template>
+		<name>GearBoxTemplate</name>
+		<declaration>
+clock GBTimer;
+</declaration>
+		<location id="id34" x="-399" y="-255">
+			<name x="-409" y="-289">Neutral</name>
+		</location>
+		<location id="id35" x="34" y="-255">
+			<name x="24" y="-289">Opening</name>
+			<label kind="invariant" x="24" y="-238">GBTimer &lt;=200</label>
+		</location>
+		<location id="id36" x="34" y="-68">
+			<name x="42" y="-102">Idle</name>
+		</location>
+		<location id="id37" x="-399" y="-68">
+			<name x="-399" y="-110">Closing</name>
+			<label kind="invariant" x="-409" y="-51">GBTimer &lt;= 300</label>
+		</location>
+		<location id="id38" x="-263" y="-153">
+			<name x="-273" y="-187">ErrorIdle</name>
+		</location>
+		<location id="id39" x="-85" y="-161">
+			<name x="-119" y="-195">ErrorNeu</name>
+		</location>
+		<init ref="id34"/>
+		<transition>
+			<source ref="id37"/>
+			<target ref="id38"/>
+			<label kind="guard" x="-306" y="-127">GBTimer ==300</label>
+			<label kind="assignment" x="-323" y="-110">ErrStat:=3</label>
+		</transition>
+		<transition>
+			<source ref="id35"/>
+			<target ref="id39"/>
+			<label kind="guard" x="-119" y="-238">GBTimer &gt;200</label>
+			<label kind="assignment" x="-110" y="-221">ErrStat:=4</label>
+		</transition>
+		<transition>
+			<source ref="id36"/>
+			<target ref="id35"/>
+			<label kind="synchronisation" x="34" y="-178">ReqNeu?</label>
+			<label kind="assignment" x="34" y="-161">GBTimer:=0</label>
+		</transition>
+		<transition>
+			<source ref="id37"/>
+			<target ref="id36"/>
+			<label kind="guard" x="-229" y="-93">GBTimer &gt;= 100</label>
+			<label kind="synchronisation" x="-229" y="-68">GearSet!</label>
+		</transition>
+		<transition>
+			<source ref="id34"/>
+			<target ref="id37"/>
+			<label kind="synchronisation" x="-399" y="-212">ReqSet?</label>
+			<label kind="assignment" x="-399" y="-195">GBTimer :=0</label>
+		</transition>
+		<transition>
+			<source ref="id35"/>
+			<target ref="id34"/>
+			<label kind="guard" x="-238" y="-297">GBTimer &gt;= 100</label>
+			<label kind="synchronisation" x="-238" y="-280">GearNeu!</label>
+		</transition>
+	</template>
+	<template>
+		<name x="5" y="5">ClutchTemplate</name>
+		<declaration>// Place local declarations here.
+clock CTimer;
+
+</declaration>
+		<location id="id40" x="0" y="0">
+			<name x="-10" y="-34">Opening</name>
+			<label kind="invariant" x="-110" y="8">CTimer &lt;= 150</label>
+		</location>
+		<location id="id41" x="161" y="85">
+			<name x="151" y="51">ErrorOpen</name>
+		</location>
+		<location id="id42" x="0" y="153">
+			<name x="0" y="102">Closed</name>
+		</location>
+		<location id="id43" x="382" y="161">
+			<name x="399" y="136">Closing</name>
+			<label kind="invariant" x="372" y="178">CTimer &lt;= 150</label>
+		</location>
+		<location id="id44" x="382" y="8">
+			<name x="372" y="-26">Open</name>
+		</location>
+		<location id="id45" x="297" y="85">
+			<name x="287" y="51">ErrorClose</name>
+		</location>
+		<init ref="id42"/>
+		<transition>
+			<source ref="id43"/>
+			<target ref="id45"/>
+			<label kind="guard" x="238" y="110">CTimer == 150</label>
+			<label kind="assignment" x="280" y="127">ErrStat := 1</label>
+		</transition>
+		<transition>
+			<source ref="id40"/>
+			<target ref="id41"/>
+			<label kind="guard" x="59" y="17">CTimer == 150</label>
+			<label kind="assignment" x="102" y="34">ErrStat:=2</label>
+		</transition>
+		<transition>
+			<source ref="id43"/>
+			<target ref="id42"/>
+			<label kind="guard" x="42" y="161">CTimer &gt;= 100</label>
+			<label kind="synchronisation" x="51" y="187">ClutchIsClosed!</label>
+		</transition>
+		<transition>
+			<source ref="id44"/>
+			<target ref="id43"/>
+			<label kind="synchronisation" x="382" y="67">CloseClutch?</label>
+			<label kind="assignment" x="382" y="84">CTimer :=0</label>
+		</transition>
+		<transition>
+			<source ref="id40"/>
+			<target ref="id44"/>
+			<label kind="guard" x="93" y="-34">CTimer &gt;= 100</label>
+			<label kind="synchronisation" x="85" y="-17">ClutchIsOpen!</label>
+		</transition>
+		<transition>
+			<source ref="id42"/>
+			<target ref="id40"/>
+			<label kind="synchronisation" x="0" y="59">OpenClutch?</label>
+			<label kind="assignment" x="0" y="76">CTimer :=0</label>
+		</transition>
+	</template>
+	<template>
+		<name>InterfaceTemplate</name>
+		<location id="id46" x="-382" y="-204">
+			<name x="-392" y="-238">GearN</name>
+		</location>
+		<location id="id47" x="-476" y="-51">
+			<name x="-486" y="-85">chkGearRN</name>
+		</location>
+		<location id="id48" x="-323" y="-51">
+			<name x="-333" y="-85">chkGearNR</name>
+		</location>
+		<location id="id49" x="-391" y="102">
+			<name x="-401" y="68">GearR</name>
+		</location>
+		<location id="id50" x="-178" y="-289">
+			<name x="-188" y="-323">chkGearN1</name>
+		</location>
+		<location id="id51" x="-221" y="-161">
+			<name x="-231" y="-195">chkGear1N</name>
+		</location>
+		<location id="id52" x="42" y="-229">
+			<name x="32" y="-263">Gear1</name>
+		</location>
+		<location id="id53" x="-51" y="-136">
+			<name x="-61" y="-170">chkGear21</name>
+		</location>
+		<location id="id54" x="246" y="-136">
+			<name x="236" y="-170">chkGear12</name>
+		</location>
+		<location id="id55" x="42" y="-85">
+			<name x="32" y="-119">Gear2</name>
+		</location>
+		<location id="id56" x="-68" y="17">
+			<name x="-78" y="-17">chkGear32</name>
+		</location>
+		<location id="id57" x="255" y="8">
+			<name x="245" y="-26">chkGear23</name>
+		</location>
+		<location id="id58" x="68" y="85">
+			<name x="58" y="51">Gear3</name>
+		</location>
+		<location id="id59" x="-59" y="170">
+			<name x="-69" y="136">chkGear43</name>
+		</location>
+		<location id="id60" x="263" y="153">
+			<name x="253" y="119">chkGear34</name>
+		</location>
+		<location id="id61" x="68" y="212">
+			<name x="58" y="178">Gear4</name>
+		</location>
+		<location id="id62" x="-68" y="297">
+			<name x="-78" y="263">chkGear54</name>
+		</location>
+		<location id="id63" x="280" y="289">
+			<name x="270" y="255">chkGear45</name>
+		</location>
+		<location id="id64" x="68" y="357">
+			<name x="58" y="323">Gear5</name>
+		</location>
+		<init ref="id46"/>
+		<transition>
+			<source ref="id49"/>
+			<target ref="id47"/>
+			<label kind="synchronisation" x="-493" y="-8">ReqNewGear!</label>
+			<label kind="assignment" x="-493" y="9">FromGear:=6,
+ToGear:=0</label>
+		</transition>
+		<transition>
+			<source ref="id62"/>
+			<target ref="id61"/>
+			<label kind="synchronisation" x="1" y="237">NewGear?</label>
+		</transition>
+		<transition>
+			<source ref="id64"/>
+			<target ref="id62"/>
+			<label kind="synchronisation" x="-34" y="314">ReqNewGear!</label>
+			<label kind="assignment" x="-34" y="331">FromGear:=5,
+ToGear:=4</label>
+		</transition>
+		<transition>
+			<source ref="id63"/>
+			<target ref="id64"/>
+			<label kind="synchronisation" x="86" y="306">NewGear?</label>
+		</transition>
+		<transition>
+			<source ref="id61"/>
+			<target ref="id63"/>
+			<label kind="synchronisation" x="144" y="212">ReqNewGear!</label>
+			<label kind="assignment" x="144" y="229">FromGear:=4,
+ToGear:=5</label>
+		</transition>
+		<transition>
+			<source ref="id59"/>
+			<target ref="id58"/>
+			<label kind="synchronisation" x="-7" y="106">NewGear?</label>
+		</transition>
+		<transition>
+			<source ref="id61"/>
+			<target ref="id59"/>
+			<label kind="synchronisation" x="-42" y="170">ReqNewGear!</label>
+			<label kind="assignment" x="-42" y="187">FromGear:=4,
+ToGear:=3</label>
+		</transition>
+		<transition>
+			<source ref="id60"/>
+			<target ref="id61"/>
+			<label kind="synchronisation" x="86" y="165">NewGear?</label>
+		</transition>
+		<transition>
+			<source ref="id58"/>
+			<target ref="id60"/>
+			<label kind="synchronisation" x="127" y="93">ReqNewGear!</label>
+			<label kind="assignment" x="127" y="110">FromGear:=3,
+ToGear:=4</label>
+		</transition>
+		<transition>
+			<source ref="id56"/>
+			<target ref="id55"/>
+			<label kind="synchronisation" x="12" y="-55">NewGear?</label>
+		</transition>
+		<transition>
+			<source ref="id58"/>
+			<target ref="id56"/>
+			<label kind="synchronisation" x="-42" y="25">ReqNewGear!</label>
+			<label kind="assignment" x="-42" y="42">FromGear:=3,
+ToGear:=2</label>
+		</transition>
+		<transition>
+			<source ref="id57"/>
+			<target ref="id58"/>
+			<label kind="synchronisation" x="86" y="29">NewGear?</label>
+		</transition>
+		<transition>
+			<source ref="id55"/>
+			<target ref="id57"/>
+			<label kind="synchronisation" x="110" y="-59">ReqNewGear!</label>
+			<label kind="assignment" x="110" y="-42">FromGear:=2,
+ToGear:=3</label>
+		</transition>
+		<transition>
+			<source ref="id55"/>
+			<target ref="id53"/>
+			<label kind="synchronisation" x="-51" y="-127">ReqNewGear!</label>
+			<label kind="assignment" x="-51" y="-110">FromGear:=2,
+ToGear:=1</label>
+		</transition>
+		<transition>
+			<source ref="id54"/>
+			<target ref="id55"/>
+			<label kind="synchronisation" x="60" y="-127">NewGear?</label>
+		</transition>
+		<transition>
+			<source ref="id52"/>
+			<target ref="id54"/>
+			<label kind="synchronisation" x="110" y="-212">ReqNewGear!</label>
+			<label kind="assignment" x="110" y="-195">FromGear:=1,
+ToGear:=2</label>
+		</transition>
+		<transition>
+			<source ref="id53"/>
+			<target ref="id52"/>
+			<label kind="synchronisation" x="-33" y="-199">NewGear?</label>
+		</transition>
+		<transition>
+			<source ref="id51"/>
+			<target ref="id46"/>
+			<label kind="synchronisation" x="-364" y="-199">NewGear?</label>
+		</transition>
+		<transition>
+			<source ref="id52"/>
+			<target ref="id51"/>
+			<label kind="synchronisation" x="-152" y="-212">ReqNewGear!</label>
+			<label kind="assignment" x="-152" y="-195">FromGear:=1,
+ToGear:=0</label>
+		</transition>
+		<transition>
+			<source ref="id50"/>
+			<target ref="id52"/>
+			<label kind="synchronisation" x="-160" y="-276">NewGear?</label>
+		</transition>
+		<transition>
+			<source ref="id46"/>
+			<target ref="id50"/>
+			<label kind="synchronisation" x="-323" y="-280">ReqNewGear!</label>
+			<label kind="assignment" x="-323" y="-263">FromGear:=0,
+ToGear:=1</label>
+		</transition>
+		<transition>
+			<source ref="id48"/>
+			<target ref="id49"/>
+			<label kind="synchronisation" x="-373" y="8">NewGear?</label>
+		</transition>
+		<transition>
+			<source ref="id46"/>
+			<target ref="id48"/>
+			<label kind="synchronisation" x="-352" y="-144">ReqNewGear!</label>
+			<label kind="assignment" x="-348" y="-127">FromGear:=0,
+ToGear:=6</label>
+		</transition>
+		<transition>
+			<source ref="id47"/>
+			<target ref="id46"/>
+			<label kind="synchronisation" x="-458" y="-144">NewGear?</label>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+Clutch = ClutchTemplate();
+GearBox = GearBoxTemplate();
+Engine = EngineTemplate();
+Interface = InterfaceTemplate();
+GearControl = GearControlTemplate();
+// List one or more processes to be composed into a system.
+system Clutch, GearBox,Engine,Interface,GearControl;
+    </system>
+	<queries>
+		<query>
+			<formula>E&lt;&gt; Interface.Gear5</formula>
+			<comment>P2</comment>
+		</query>
+		<query>
+			<formula>A[] ( Clutch.Closed imply 
+( GearControl.ReqTorqueC or GearControl.GearChanged or 
+GearControl.Gear or GearControl.Initiate or 
+GearControl.CheckTorque or GearControl.ReqNeuGear or 
+GearControl.CheckGearNeu or GearControl.GNeuError or 
+GearControl.ReqSyncSpeed or 
+GearControl.CheckSyncSpeed or GearControl.ReqSetGear or 
+GearControl.CheckGearSet1 or GearControl.GSetError ) )</formula>
+			<comment>P14b</comment>
+		</query>
+		<query>
+			<formula>A[] ( Clutch.Open imply 
+( GearControl.ClutchOpen or GearControl.ClutchOpen2 or 
+GearControl.CheckGearSet2 or GearControl.ReqSetGear2 or 
+GearControl.GNeuError or 
+GearControl.ClutchClose or 
+GearControl.CheckClutchClosed or 
+GearControl.CheckClutchClosed2 or 
+GearControl.CCloseError or 
+GearControl.GSetError or GearControl.CheckGearNeu2 ) )</formula>
+			<comment>P14a</comment>
+		</query>
+		<query>
+			<formula>A[] ( GearBox.Neutral imply 
+( GearControl.ReqSetGear or 
+GearControl.CheckClutchClosed2 or 
+GearControl.CCloseError or GearControl.ReqTorqueC or 
+GearControl.GearChanged or GearControl.Gear or 
+GearControl.Initiate or GearControl.ReqSyncSpeed or 
+GearControl.CheckSyncSpeed or GearControl.ReqSetGear or 
+GearControl.CheckClutch or GearControl.COpenError or 
+GearControl.ClutchOpen or GearControl.ReqSetGear2 ) )</formula>
+			<comment>P15b</comment>
+		</query>
+		<query>
+			<formula>A[] ( GearBox.Idle imply 
+( GearControl.ClutchClose or 
+GearControl.CheckClutchClosed or 
+GearControl.CCloseError or 
+GearControl.ReqTorqueC or GearControl.GearChanged or 
+GearControl.Gear or GearControl.Initiate or 
+GearControl.CheckTorque or GearControl.ReqNeuGear or 
+GearControl.CheckClutch2 or GearControl.COpenError or 
+GearControl.ClutchOpen2 ) )</formula>
+			<comment>P15a</comment>
+		</query>
+		<query>
+			<formula>A[] ( ( GearControl.COpenError ) imply Clutch.ErrorOpen )
+</formula>
+			<comment>P9</comment>
+		</query>
+		<query>
+			<formula>A[] ( ( Clutch.ErrorOpen and ( GCTimer&gt;200 ) ) imply 
+GearControl.COpenError )</formula>
+			<comment>P9</comment>
+		</query>
+		<query>
+			<formula>A[] ( GearControl.CCloseError imply Clutch.ErrorClose )
+</formula>
+			<comment>P9</comment>
+		</query>
+		<query>
+			<formula>A[] ( ( Clutch.ErrorClose and ( GCTimer&gt;200 ) ) imply 
+GearControl.CCloseError )</formula>
+			<comment>P9</comment>
+		</query>
+		<query>
+			<formula>A[] ( ( GearControl.Gear and Interface.Gear5 ) imply 
+Engine.Torque )</formula>
+			<comment>P13</comment>
+		</query>
+		<query>
+			<formula>A[] ( ( GearControl.Gear and Interface.Gear4 ) imply 
+Engine.Torque )</formula>
+			<comment>P13</comment>
+		</query>
+		<query>
+			<formula>A[] ( ( GearControl.Gear and Interface.Gear3 ) imply 
+Engine.Torque )</formula>
+			<comment>P13</comment>
+		</query>
+		<query>
+			<formula>A[] ( ( GearControl.Gear and Interface.Gear2 ) imply 
+Engine.Torque )</formula>
+			<comment>P13</comment>
+		</query>
+		<query>
+			<formula>A[] ( ( GearControl.Gear and Interface.Gear1 ) imply 
+Engine.Torque )</formula>
+			<comment>P13</comment>
+		</query>
+		<query>
+			<formula>A[] ( ( GearControl.Gear and Interface.GearR ) imply 
+Engine.Torque )</formula>
+			<comment>P13</comment>
+		</query>
+		<query>
+			<formula>A[] ( Interface.GearN imply 
+( ( ToGear==0 and Engine.Zero ) or Engine.Initial ) )</formula>
+			<comment>P12</comment>
+		</query>
+		<query>
+			<formula>A[] not ( ErrStat==0 and Engine.ErrorSpeed )
+</formula>
+			<comment>P11</comment>
+		</query>
+		<query>
+			<formula>A[] ( ( GearControl.GNeuError ) imply GearBox.ErrorNeu )
+</formula>
+			<comment>P10</comment>
+		</query>
+		<query>
+			<formula>A[] ( ( GearBox.ErrorNeu and ( GCTimer&gt;200 ) ) imply 
+GearControl.GNeuError )</formula>
+			<comment>P10</comment>
+		</query>
+		<query>
+			<formula>A[] ( ( GearControl.GSetError ) imply GearBox.ErrorIdle )
+</formula>
+			<comment>P10</comment>
+		</query>
+		<query>
+			<formula>A[] ( ( GearBox.ErrorIdle and ( GCTimer&gt;350 ) ) imply 
+GearControl.GSetError )</formula>
+			<comment>P10</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; ( ErrStat==0 and UseCase==2 and FromGear&gt;0 and ToGear&gt;0 and 
+GearControl.GearChanged and 
+( SysTimer==750 ) )</formula>
+			<comment>P8</comment>
+		</query>
+		<query>
+			<formula>A[] ( ( ErrStat==0 and UseCase==2 and FromGear&gt;0 and 
+ToGear&gt;0 and SysTimer&lt;750 ) imply 
+not ( GearControl.GearChanged and GearControl.Gear ) )</formula>
+			<comment>P8</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; ( UseCase==2 and GearControl.GearChanged and 
+( SysTimer==450 ) )</formula>
+			<comment>P8</comment>
+		</query>
+		<query>
+			<formula>A[] ( ( UseCase==2 and ( SysTimer&lt;450 ) ) imply 
+not ( GearControl.GearChanged or GearControl.Gear ) )</formula>
+			<comment>P8</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; ( ErrStat==0 and UseCase==2 and SysTimer&gt;1204 and 
+SysTimer&lt;1205 and 
+not ( GearControl.GearChanged or GearControl.Gear ) )</formula>
+			<comment>P8</comment>
+		</query>
+		<query>
+			<formula>A[] ( ( ErrStat==0 and UseCase==2 and SysTimer&gt;=1205 ) imply 
+( GearControl.GearChanged or GearControl.Gear ) )</formula>
+			<comment>P8</comment>
+		</query>
+		<query>
+			<formula> A[] (Engine.Torque imply Clutch.Closed)</formula>
+			<comment>P16</comment>
+		</query>
+		<query>
+			<formula>A[] (1 &gt; 0)</formula>
+			<comment>P17</comment>
+		</query>
+		<query>
+			<formula>A[] ( Interface.GearN imply GearBox.Neutral )</formula>
+			<comment>P5b</comment>
+		</query>
+		<query>
+			<formula>A[] not ( GearBox.Idle and Interface.GearN )</formula>
+			<comment>P5a</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; ( ErrStat==0 and UseCase==0 and FromGear&gt;0 and ToGear&gt;0 and 
+GearControl.GearChanged and ( SysTimer==400 ) )</formula>
+			<comment>P6</comment>
+		</query>
+		<query>
+			<formula>A[] ( ( ErrStat==0 and UseCase==0 and FromGear&gt;0 and 
+ToGear&gt;0 and ( SysTimer&lt;400 ) ) imply 
+not ( GearControl.GearChanged ) )</formula>
+			<comment>P6</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; ( ErrStat==0 and UseCase==0 and GearControl.GearChanged and 
+( SysTimer==150 ) )</formula>
+			<comment>P6</comment>
+		</query>
+		<query>
+			<formula>A[] ( ( ErrStat==0 and UseCase==0 and ( SysTimer&lt;150 ) ) imply 
+not ( GearControl.GearChanged ) )</formula>
+			<comment>P6</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; ( ErrStat==0 and UseCase==0 and 
+SysTimer&gt;899 and SysTimer&lt;900 and 
+not ( GearControl.GearChanged or GearControl.Gear ) )</formula>
+			<comment>P6</comment>
+		</query>
+		<query>
+			<formula>A[] ( ( ErrStat==0 and UseCase==0 and SysTimer&gt;=900 ) imply 
+( GearControl.GearChanged or GearControl.Gear ) )</formula>
+			<comment>P6</comment>
+		</query>
+		<query>
+			<formula>
+E&lt;&gt; ( ErrStat==0 and UseCase==1 and GearControl.GearChanged and 
+( SysTimer==550 ) )</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>A[] ( ( ErrStat==0 and UseCase==1 and SysTimer&lt;550 ) imply 
+not ( GearControl.GearChanged or GearControl.Gear ) )
+</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>A[] ( ( ErrStat==0 and UseCase==1 and FromGear&gt;0 and 
+ToGear&gt;0 and SysTimer&lt;700 ) imply 
+not ( GearControl.GearChanged and GearControl.Gear ) )</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>A[] ( ( ErrStat==0 and UseCase==1 and SysTimer&gt;1055 ) imply 
+( GearControl.GearChanged or GearControl.Gear ) )</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; ( ErrStat==0 and UseCase==1 and SysTimer==1055 and 
+not ( GearControl.GearChanged or GearControl.Gear ) )</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; ( ErrStat==0 and UseCase==1 and FromGear&gt;0 and ToGear&gt;0 and 
+GearControl.GearChanged and 
+( SysTimer==700 ) )</formula>
+			<comment>P7</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; ( GearControl. GearChanged and ( SysTimer&lt;=1000 ) )</formula>
+			<comment>P3</comment>
+		</query>
+		<query>
+			<formula>A[] not ( GearBox.Neutral and 
+( Interface.Gear1 or Interface.Gear2 or 
+Interface.Gear3 or Interface.Gear4 or 
+Interface.Gear5 or Interface.GearR ) )</formula>
+			<comment>P4</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; GearControl.GearChanged</formula>
+			<comment>P1</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; Interface.GearR</formula>
+			<comment>P2</comment>
+		</query>
+	</queries>
+</nta>
